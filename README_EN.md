@@ -44,7 +44,7 @@ You write your characters once on paper. fontkit handles everything else — sca
 
 1. **Write** — Generate a printable grid template, fill it in by hand
 2. **Scan** — Use a scanner or your phone; fontkit auto-denoises &amp; deskews
-3. **Slice** — A single sheet, hundreds of characters, sliced in one click
+3. **Slice & Trace** — A single sheet, hundreds of characters, sliced and batch-traced in one click
 4. **Generate** — Outputs a FontForge script that compiles a standard `.ttf`
 
 ## Features
