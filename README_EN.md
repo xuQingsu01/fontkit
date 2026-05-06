@@ -53,7 +53,7 @@ You write your characters once on paper. fontkit handles everything else — sca
 
 - **Grid Template Generator** — One-click printable PDF, ready to write on
 - **Image Processing** — Auto background removal, deskew, contrast boost
-- **Batch Slicing** — Auto-detect grid lines, extract every glyph cleanly
+- **Batch Slicing & Tracing** — Auto-detect grid lines, slice hundreds of glyphs, then batch-trace them into clean outlines
 - **Font Compilation** — Generate a FontForge script, compile a real `.ttf`
 
 ## Who is it for?
