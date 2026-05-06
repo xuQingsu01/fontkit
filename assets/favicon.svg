@@ -1,0 +1,18 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#09090B"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" stroke="url(#border)" stroke-opacity="0.75" stroke-width="2"/>
+  <path d="M20 47V21.5C20 16.2 23.9 13 29.8 13H43V23H32.4C30.8 23 30 23.8 30 25.4V30H42V39H30V47H20Z" fill="url(#glyph)"/>
+  <path d="M43 30V39H38.5C37.1 39 36 37.9 36 36.5V32.5C36 31.1 37.1 30 38.5 30H43Z" fill="#9AA8FF" fill-opacity="0.28"/>
+  <defs>
+    <linearGradient id="glyph" x1="19" y1="14" x2="45" y2="49" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="0.5" stop-color="#C8D4FF"/>
+      <stop offset="1" stop-color="#4F6EF7"/>
+    </linearGradient>
+    <linearGradient id="border" x1="5" y1="5" x2="59" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="0.45" stop-color="#4F6EF7" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+</svg>

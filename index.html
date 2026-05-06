@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- ============================================================
+       Step 1: SEO Meta 标签
+  ============================================================ -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fontkit - 手写字体制作工具箱 | 一键生成专属字体</title>
+  <meta name="description" content="fontkit 是专为手写字体制作设计的工具箱，支持字模表生成、图片处理、批量切割，并生成 FontForge 脚本一键编译字体，无需设计基础，免费下载使用。" />
+  <meta name="keywords" content="fontkit, 字体制作, 手写字体, 字体生成工具, 字模表, 字体工具箱" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://fontkit.qingsu.link" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://fontkit.qingsu.link" />
+  <meta property="og:title" content="fontkit - 手写字体制作工具箱" />
+  <meta property="og:description" content="无需设计基础，用 fontkit 一键生成你的专属手写字体。字模表生成、图片处理、批量切割、字体生成，全流程覆盖。" />
+  <meta property="og:site_name" content="fontkit by qingsu" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="fontkit - 手写字体制作工具箱" />
+  <meta name="twitter:description" content="无需设计基础，用 fontkit 一键生成你的专属手写字体。" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "fontkit",
+    "description": "专为手写字体制作设计的工具箱，支持字模表生成、图片处理、批量切割与字体生成",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Windows, macOS",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    },
+    "url": "https://fontkit.qingsu.link"
+  }
+  </script>
+
+  <!-- ============================================================
+       Step 2: CSS 设计系统
+  ============================================================ -->
+  <style>
+    /* === 全局变量 === */
+    :root {
+      --bg:            #09090b;
+      --bg-section:    #0d0d10;
+      --bg-card:       rgba(255, 255, 255, 0.04);
+      --bg-card-hover: rgba(255, 255, 255, 0.07);
+      --border:        rgba(255, 255, 255, 0.08);
+      --border-hover:  rgba(79, 110, 247, 0.4);
+      --text-primary:  #f4f4f5;
+      --text-secondary:#a1a1aa;
+      --text-muted:    #71717a;
+      --accent:        #4f6ef7;
+      --accent-light:  #6b84ff;
+      --accent-glow:   rgba(79, 110, 247, 0.25);
+      --accent-subtle: rgba(79, 110, 247, 0.08);
+      --radius-sm:     8px;
+      --radius:        12px;
+      --radius-lg:     20px;
+      --sp:            8px;
+      --max-w:         1160px;
+      --nav-h:         64px;
+      --transition:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, video { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
+    ul { list-style: none; }
+
+    /* === 容器 === */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 calc(var(--sp) * 3);
+    }
+
+    /* === 通用 section 间距 === */
+    .section {
+      padding: calc(var(--sp) * 12) 0;
+    }
+    .section--alt {
+      background: var(--bg-section);
+    }
+
+    /* === 区块标题组 === */
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: calc(var(--sp) * 2);
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: calc(var(--sp) * 2);
+    }
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: calc(var(--sp) * 8);
+    }
+    .section-header .section-desc {
+      margin: 0 auto;
+    }
+
+    /* === 按钮 === */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 0 0 var(--accent-glow);
+    }
+    .btn-primary:hover {
+      background: var(--accent-light);
+      box-shadow: 0 0 24px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    /* === 动画基础类 === */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ============================================================
+       Step 3: Navbar
+    ============================================================ */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      transition: background 0.3s, border-bottom 0.3s, backdrop-filter 0.3s;
+    }
+    .navbar.scrolled {
+      background: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar__inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 calc(var(--sp) * 3);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: calc(var(--sp) * 4);
+    }
+    .navbar__brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .navbar__logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .navbar__byline {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .navbar__byline a {
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+    .navbar__byline a:hover { color: var(--accent-light); }
+
+    .navbar__nav {
+      display: flex;
+      align-items: center;
+      gap: calc(var(--sp) * 4);
+    }
+    .navbar__nav a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+    .navbar__nav a:hover { color: var(--text-primary); }
+
+    .navbar__actions {
+      display: flex;
+      align-items: center;
+      gap: calc(var(--sp) * 2);
+      flex-shrink: 0;
+    }
+
+    /* 移动端菜单 */
+    .navbar__hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .navbar__hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-secondary);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+    .navbar__mobile {
+      display: none;
+      position: fixed;
+      top: var(--nav-h);
+      left: 0;
+      right: 0;
+      background: rgba(9, 9, 11, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: calc(var(--sp) * 3) calc(var(--sp) * 3) calc(var(--sp) * 4);
+      flex-direction: column;
+      gap: calc(var(--sp) * 2);
+      z-index: 99;
+    }
+    .navbar__mobile.open { display: flex; }
+    .navbar__mobile a {
+      font-size: 16px;
+      color: var(--text-secondary);
+      padding: calc(var(--sp) * 1.5) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar__mobile a:last-child { border-bottom: none; }
+
+    @media (max-width: 768px) {
+      .navbar__nav { display: none; }
+      .navbar__actions .btn { display: none; }
+      .navbar__hamburger { display: flex; }
+    }
+
+    /* ============================================================
+       Step 4: Hero 区
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(var(--nav-h) + var(--sp) * 8) calc(var(--sp) * 3) calc(var(--sp) * 16);
+      overflow: hidden;
+    }
+
+    /* 背景光晕 */
+    .hero__orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .hero__orb--1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(79, 110, 247, 0.18) 0%, transparent 70%);
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .hero__orb--2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(120, 60, 200, 0.12) 0%, transparent 70%);
+      top: 30%;
+      right: 10%;
+    }
+    .hero__orb--3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(60, 180, 120, 0.08) 0%, transparent 70%);
+      top: 40%;
+      left: 5%;
+    }
+
+    /* 网格线背景 */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .hero__content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-subtle);
+      border: 1px solid rgba(79, 110, 247, 0.2);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--accent-light);
+      margin-bottom: calc(var(--sp) * 4);
+    }
+    .hero__badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+
+    .hero__title {
+      font-size: clamp(44px, 7vw, 76px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin-bottom: calc(var(--sp) * 3);
+    }
+    .hero__title-main {
+      display: block;
+      background: linear-gradient(135deg, #ffffff 0%, #c8d4ff 50%, var(--accent-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero__title-sub {
+      display: block;
+      color: var(--text-secondary);
+      font-size: clamp(22px, 3.5vw, 38px);
+      font-weight: 600;
+      margin-top: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero__desc {
+      font-size: clamp(16px, 2vw, 18px);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 560px;
+      margin: 0 auto calc(var(--sp) * 6);
+    }
+    .hero__desc em {
+      color: var(--text-primary);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    .hero__actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(var(--sp) * 2);
+      flex-wrap: wrap;
+    }
+    .hero__actions .btn-primary {
+      padding: 14px 32px;
+      font-size: 16px;
+      border-radius: var(--radius);
+    }
+    .hero__actions .btn-ghost {
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: var(--radius);
+    }
+
+    .hero__stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(var(--sp) * 6);
+      margin-top: calc(var(--sp) * 10);
+      padding-top: calc(var(--sp) * 5);
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .hero__stat-item {
+      text-align: center;
+    }
+    .hero__stat-num {
+      display: block;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.04em;
+    }
+    .hero__stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       Step 5: 视频展示区
+    ============================================================ */
+    .video-section {
+      padding: calc(var(--sp) * 12) 0;
+      background: var(--bg-section);
+    }
+    .video-wrapper {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      aspect-ratio: 16 / 9;
+      max-width: 900px;
+      margin: 0 auto;
+      cursor: pointer;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+      transition: box-shadow var(--transition);
+    }
+    .video-wrapper:hover {
+      box-shadow: 0 0 80px rgba(79, 110, 247, 0.15), 0 0 0 1px var(--border-hover);
+    }
+
+    /* 懒加载封面 */
+    .video-cover {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d0d1a 0%, #0a0a0e 100%);
+      transition: opacity 0.3s;
+    }
+    .video-cover__bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 50%, rgba(79,110,247,0.12) 0%, transparent 60%),
+        radial-gradient(circle at 70% 50%, rgba(120,60,200,0.08) 0%, transparent 60%);
+    }
+    .video-cover__text {
+      position: absolute;
+      bottom: 32px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .video-play-btn {
+      position: relative;
+      z-index: 1;
+      width: 72px;
+      height: 72px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      backdrop-filter: blur(8px);
+    }
+    .video-play-btn:hover {
+      background: rgba(79,110,247,0.3);
+      border-color: var(--accent);
+      transform: scale(1.08);
+    }
+    .video-play-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+      margin-left: 4px;
+    }
+    .video-iframe-container {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: none;
+    }
+    .video-iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .video-open-bilibili {
+      display: none;
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 3;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(9, 9, 11, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .video-open-bilibili:hover {
+      background: rgba(79, 110, 247, 0.9);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+    @media (max-width: 768px) {
+      .video-wrapper.video-loaded .video-open-bilibili {
+        display: inline-flex;
+      }
+    }
+
+    /* ============================================================
+       Step 6: 功能介绍区
+    ============================================================ */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: calc(var(--sp) * 3);
+    }
+    @media (max-width: 768px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+
+    .feature-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: calc(var(--sp) * 4);
+      overflow: hidden;
+      transition: background var(--transition), border-color var(--transition),
+                  transform var(--transition), box-shadow var(--transition);
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at 0% 0%, rgba(79,110,247,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(79,110,247,0.15);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-card__icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-subtle);
+      border: 1px solid rgba(79,110,247,0.2);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: calc(var(--sp) * 3);
+    }
+    .feature-card__icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent-light);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .feature-card__title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: calc(var(--sp) * 1.5);
+      letter-spacing: -0.02em;
+    }
+    .feature-card__desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .feature-card__tag {
+      display: inline-block;
+      margin-top: calc(var(--sp) * 2.5);
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-subtle);
+      border-radius: 100px;
+      padding: 3px 10px;
+    }
+
+    /* ============================================================
+       Step 7: 使用流程区
+    ============================================================ */
+    .steps-container {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    @media (max-width: 768px) {
+      .steps-container { grid-template-columns: 1fr; }
+    }
+
+    /* 桌面端连接线 */
+    .steps-container::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(12.5% + 24px);
+      right: calc(12.5% + 24px);
+      height: 1px;
+      background: linear-gradient(90deg,
+        var(--accent) 0%,
+        rgba(79,110,247,0.5) 50%,
+        var(--border) 100%);
+      z-index: 0;
+    }
+    @media (max-width: 768px) {
+      .steps-container::before { display: none; }
+    }
+
+    .step-item {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 calc(var(--sp) * 2);
+    }
+    @media (max-width: 768px) {
+      .step-item {
+        flex-direction: row;
+        text-align: left;
+        align-items: flex-start;
+        padding: 0 0 calc(var(--sp) * 5) 0;
+        gap: calc(var(--sp) * 3);
+      }
+    }
+
+    .step-item__num {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-bottom: calc(var(--sp) * 3);
+      position: relative;
+      z-index: 1;
+      transition: var(--transition);
+    }
+    .step-item:nth-child(1) .step-item__num {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .step-item:nth-child(2) .step-item__num,
+    .step-item:nth-child(3) .step-item__num,
+    .step-item:nth-child(4) .step-item__num {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .step-item:hover .step-item__num {
+      background: var(--accent) !important;
+      color: #fff !important;
+      box-shadow: 0 0 20px var(--accent-glow) !important;
+      border-color: transparent !important;
+    }
+    @media (max-width: 768px) {
+      .step-item__num { margin-bottom: 0; }
+    }
+
+    .step-item__body {}
+    .step-item__title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: calc(var(--sp) * 1);
+      letter-spacing: -0.02em;
+    }
+    .step-item__desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    @media (max-width: 768px) {
+      .step-item__body { padding-top: 12px; }
+    }
+
+    /* ============================================================
+       Step 8: 适用人群区
+    ============================================================ */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: calc(var(--sp) * 3);
+    }
+    @media (max-width: 768px) {
+      .audience-grid { grid-template-columns: 1fr; }
+    }
+
+    .audience-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: calc(var(--sp) * 4) calc(var(--sp) * 3.5);
+      transition: var(--transition);
+    }
+    .audience-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+    .audience-card__emoji {
+      font-size: 36px;
+      margin-bottom: calc(var(--sp) * 2);
+      display: block;
+    }
+    .audience-card__title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: calc(var(--sp) * 1.5);
+      letter-spacing: -0.02em;
+    }
+    .audience-card__desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .audience-card__list {
+      margin-top: calc(var(--sp) * 2);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .audience-card__list li {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .audience-card__list li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       Step 9: 下载区
+    ============================================================ */
+    .download-section {
+      position: relative;
+      overflow: hidden;
+      padding: calc(var(--sp) * 16) 0;
+    }
+    .download-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 50%,
+          rgba(79,110,247,0.12) 0%,
+          transparent 70%);
+      pointer-events: none;
+    }
+    .download-section__inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .download-section .section-title {
+      font-size: clamp(32px, 5vw, 52px);
+    }
+    .download-section .section-desc {
+      margin: 0 auto calc(var(--sp) * 6);
+    }
+
+    .download-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(var(--sp) * 2);
+      flex-wrap: wrap;
+      margin-bottom: calc(var(--sp) * 4);
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      transition: var(--transition);
+      min-width: 200px;
+      justify-content: center;
+    }
+    .download-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 32px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .download-btn svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .download-btn--win svg { fill: #00adef; stroke: none; }
+    .download-btn--mac svg { fill: var(--text-primary); stroke: none; }
+    .download-btn:hover svg { fill: #fff; }
+
+    .download-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .download-note svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--text-muted);
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       Step 10: FAQ 区
+    ============================================================ */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--sp) * 1.5);
+    }
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .faq-item.open {
+      border-color: rgba(79,110,247,0.25);
+    }
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(var(--sp) * 2.5) calc(var(--sp) * 3);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: left;
+      cursor: pointer;
+      gap: 16px;
+      transition: color var(--transition);
+    }
+    .faq-question:hover { color: var(--accent-light); }
+    .faq-chevron {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-muted);
+      fill: none;
+      flex-shrink: 0;
+      transition: transform 0.3s, stroke 0.3s;
+    }
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      stroke: var(--accent);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .faq-answer-inner {
+      padding: 0 calc(var(--sp) * 3) calc(var(--sp) * 3);
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .faq-answer-inner a {
+      color: var(--accent-light);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* ============================================================
+       Step 11: Footer
+    ============================================================ */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: calc(var(--sp) * 10) 0 calc(var(--sp) * 6);
+      background: var(--bg);
+    }
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: calc(var(--sp) * 8);
+      margin-bottom: calc(var(--sp) * 8);
+    }
+    @media (max-width: 768px) {
+      .footer__grid { grid-template-columns: 1fr 1fr; gap: calc(var(--sp) * 6); }
+      .footer__col--brand { grid-column: 1 / -1; }
+    }
+
+    .footer__brand-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .footer__brand-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 260px;
+    }
+    .footer__parent {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: calc(var(--sp) * 2);
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .footer__parent:hover { color: var(--text-secondary); }
+
+    .footer__col-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: calc(var(--sp) * 2.5);
+    }
+    .footer__links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer__links a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+    .footer__links a:hover { color: var(--text-primary); }
+
+    .footer__bottom {
+      border-top: 1px solid var(--border);
+      padding-top: calc(var(--sp) * 3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer__copyright {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer__icp {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer__icp a {
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+    .footer__icp a:hover { color: var(--text-secondary); }
+
+    /* ============================================================
+       响应式补充
+    ============================================================ */
+    @media (max-width: 480px) {
+      .hero__stats { gap: calc(var(--sp) * 4); }
+      .download-btns { flex-direction: column; align-items: stretch; }
+      .download-btn { min-width: unset; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       Step 3: Navbar
+  ============================================================ -->
+  <header>
+    <nav class="navbar" id="navbar" aria-label="主导航">
+      <div class="navbar__inner">
+        <div class="navbar__brand">
+          <a href="/" class="navbar__logo">fontkit</a>
+          <span class="navbar__byline">by <a href="https://qingsu.link" target="_blank" rel="noopener">qingsu.link</a></span>
+        </div>
+
+        <ul class="navbar__nav" role="list">
+          <li><a href="#features">功能</a></li>
+          <li><a href="#how-it-works">使用流程</a></li>
+          <li><a href="#download">下载</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="https://qingsu.link" target="_blank" rel="noopener">教程主站 ↗</a></li>
+        </ul>
+
+        <div class="navbar__actions">
+          <a href="#download" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            免费下载
+          </a>
+        </div>
+
+        <button class="navbar__hamburger" id="hamburger" aria-label="打开菜单" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- 移动端菜单 -->
+    <div class="navbar__mobile" id="mobileMenu" role="navigation" aria-label="移动端菜单">
+      <a href="#features" onclick="closeMenu()">功能介绍</a>
+      <a href="#how-it-works" onclick="closeMenu()">使用流程</a>
+      <a href="#download" onclick="closeMenu()">下载</a>
+      <a href="#faq" onclick="closeMenu()">FAQ</a>
+      <a href="https://qingsu.link" target="_blank" rel="noopener">教程主站 ↗</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+         Step 4: Hero 区
+    ============================================================ -->
+    <section class="hero" aria-label="产品介绍">
+      <div class="hero__orb hero__orb--1" aria-hidden="true"></div>
+      <div class="hero__orb hero__orb--2" aria-hidden="true"></div>
+      <div class="hero__orb hero__orb--3" aria-hidden="true"></div>
+
+      <div class="hero__content">
+        <div class="hero__badge reveal">
+          <span class="hero__badge-dot" aria-hidden="true"></span>
+          手写字体制作工具箱
+        </div>
+
+        <h1 class="hero__title reveal reveal-delay-1">
+          <span class="hero__title-main">fontkit</span>
+          <span class="hero__title-sub">为手写字体制作而生的专业工作流</span>
+        </h1>
+
+        <p class="hero__desc reveal reveal-delay-2">
+          做一套<em>手写字体</em>曾经需要专业软件、设计经验和大量时间。
+          fontkit 把完整流程——字模表、扫描处理、批量切割、<em>字体脚本生成</em>——
+          整合进一个工具，人人都能做出属于自己的字体。
+        </p>
+
+        <div class="hero__actions reveal reveal-delay-3">
+          <!-- ===== 下载链接：修改 href 即可更换网盘地址 ===== -->
+          <a href="https://pan.baidu.com/s/1D4ZX7ZAJheduW5YlYfUHow?pwd=5d45#list/path=%2F" class="btn btn-primary" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            立即下载 fontkit
+          </a>
+          <a href="https://qingsu.link" class="btn btn-ghost" target="_blank" rel="noopener">
+            查看教程 →
+          </a>
+        </div>
+
+        <div class="hero__stats reveal reveal-delay-4">
+          <div class="hero__stat-item">
+            <span class="hero__stat-num">4</span>
+            <div class="hero__stat-label">核心工具模块</div>
+          </div>
+          <div class="hero__stat-item">
+            <span class="hero__stat-num">0</span>
+            <div class="hero__stat-label">设计基础要求</div>
+          </div>
+          <div class="hero__stat-item">
+            <span class="hero__stat-num">Win & Mac</span>
+            <div class="hero__stat-label">跨平台支持</div>
+          </div>
+          <div class="hero__stat-item">
+            <span class="hero__stat-num">免费</span>
+            <div class="hero__stat-label">基础功能永久免费</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 5: 视频展示区
+    ============================================================ -->
+    <section class="video-section section" id="demo" aria-labelledby="video-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">完整演示</span>
+          <h2 class="section-title" id="video-title">看一遍，就会了</h2>
+          <p class="section-desc">从写字到生成字体文件，完整流程演示，10 分钟掌握 fontkit 全部操作。</p>
+        </div>
+
+        <!-- ===== 视频区：如需更换视频，修改 data-bvid 即可 ===== -->
+        <div class="video-wrapper reveal" id="videoWrapper" role="button" tabindex="0"
+             aria-label="点击播放 fontkit 完整流程演示视频"
+             data-bvid="BV1NPoKBPEfY">
+          <div class="video-cover" id="videoCover">
+            <div class="video-cover__bg" aria-hidden="true"></div>
+            <button class="video-play-btn" aria-label="播放视频">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+            <p class="video-cover__text">点击播放 · fontkit 完整使用流程演示</p>
+          </div>
+          <div class="video-iframe-container" id="videoIframe"></div>
+          <a class="video-open-bilibili" id="videoOpenBilibili"
+             href="https://www.bilibili.com/video/BV1NPoKBPEfY/"
+             target="_blank" rel="noopener"
+             aria-label="在 Bilibili 打开 fontkit 完整流程演示视频">
+            在 B 站打开 ↗
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 6: 功能介绍区
+    ============================================================ -->
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">核心功能</span>
+          <h2 class="section-title" id="features-title">一套工具，覆盖完整流程</h2>
+          <p class="section-desc">fontkit 由四个独立模块组成，每个模块对应字体制作的一个阶段，按需使用，互不依赖。</p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card reveal reveal-delay-1">
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            </div>
+            <h3 class="feature-card__title">字模表生成</h3>
+            <p class="feature-card__desc">
+              自动生成标准化字模练习表，选定字符集后一键导出可打印的 PDF，
+              让每个字都有固定格线，确保大小一致、扫描精度更高。
+            </p>
+            <span class="feature-card__tag">字体制作第一步</span>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-2">
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <h3 class="feature-card__title">图片处理</h3>
+            <p class="feature-card__desc">
+              扫描或拍照的字模图片，经过自动去背景、增强对比度、矫正倾斜处理，
+              输出干净的黑白笔画图，为后续切割做好准备。
+            </p>
+            <span class="feature-card__tag">自动去噪 · 矫正倾斜</span>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-3">
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <h3 class="feature-card__title">批量切割</h3>
+            <p class="feature-card__desc">
+              根据字模表的格线自动识别并裁切单字，支持一张图处理数百个字符，
+              切割结果按字符命名保存，方便核对与替换。
+            </p>
+            <span class="feature-card__tag">单张图 · 数百字</span>
+          </article>
+
+          <article class="feature-card reveal reveal-delay-4">
+            <div class="feature-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            </div>
+            <h3 class="feature-card__title">字体生成</h3>
+            <p class="feature-card__desc">
+              自动生成可直接导入 FontForge 的字体脚本，
+              在 FontForge 中一键执行即可编译出标准字体文件，
+              支持自定义字体名称、字重等元数据。
+            </p>
+            <span class="feature-card__tag">生成 FontForge 脚本</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 7: 使用流程区
+    ============================================================ -->
+    <section class="section section--alt" id="how-it-works" aria-labelledby="steps-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">使用流程</span>
+          <h2 class="section-title" id="steps-title">四步，从零到字体</h2>
+          <p class="section-desc">fontkit 将字体制作拆解为四个清晰阶段，每步都有工具辅助，不会迷路。</p>
+        </div>
+
+        <div class="steps-container">
+          <div class="step-item reveal reveal-delay-1">
+            <div class="step-item__num" aria-hidden="true">01</div>
+            <div class="step-item__body">
+              <h3 class="step-item__title">写字</h3>
+              <p class="step-item__desc">用 fontkit 生成字模表并打印，按格线在纸上写下你想要的文字。</p>
+            </div>
+          </div>
+
+          <div class="step-item reveal reveal-delay-2">
+            <div class="step-item__num" aria-hidden="true">02</div>
+            <div class="step-item__body">
+              <h3 class="step-item__title">扫描</h3>
+              <p class="step-item__desc">用扫描仪或手机拍照，导入 fontkit 的图片处理模块，自动去噪矫正。</p>
+            </div>
+          </div>
+
+          <div class="step-item reveal reveal-delay-3">
+            <div class="step-item__num" aria-hidden="true">03</div>
+            <div class="step-item__body">
+              <h3 class="step-item__title">切割</h3>
+              <p class="step-item__desc">一键批量识别格线，将整张字模图自动裁切为独立字符文件。</p>
+            </div>
+          </div>
+
+          <div class="step-item reveal reveal-delay-4">
+            <div class="step-item__num" aria-hidden="true">04</div>
+            <div class="step-item__body">
+              <h3 class="step-item__title">生成字体</h3>
+              <p class="step-item__desc">导入字符文件，填写字体名称，fontkit 生成脚本，导入 FontForge 直接执行即可得到字体文件。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 8: 适用人群区
+    ============================================================ -->
+    <section class="section" id="audience" aria-labelledby="audience-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">适用人群</span>
+          <h2 class="section-title" id="audience-title">不只是设计师</h2>
+          <p class="section-desc">无论你是第一次接触字体制作，还是想把爱好变成副业，fontkit 都适合你。</p>
+        </div>
+
+        <div class="audience-grid">
+          <article class="audience-card reveal reveal-delay-1">
+            <span class="audience-card__emoji" aria-hidden="true">🌱</span>
+            <h3 class="audience-card__title">完全新手</h3>
+            <p class="audience-card__desc">从没接触过字体制作？没关系。fontkit 从第一步就有引导，不需要任何设计软件基础。</p>
+            <ul class="audience-card__list" aria-label="适合场景">
+              <li>想制作自己的手写字体</li>
+              <li>第一次接触字体制作</li>
+              <li>不想学复杂设计软件</li>
+            </ul>
+          </article>
+
+          <article class="audience-card reveal reveal-delay-2">
+            <span class="audience-card__emoji" aria-hidden="true">💼</span>
+            <h3 class="audience-card__title">副业创作者</h3>
+            <p class="audience-card__desc">把自己的手写风格商品化，出售字体授权或定制服务。fontkit 让批量生产成为可能。</p>
+            <ul class="audience-card__list" aria-label="适合场景">
+              <li>想销售自制字体</li>
+              <li>接受字体定制订单</li>
+              <li>批量制作不同风格</li>
+            </ul>
+          </article>
+
+          <article class="audience-card reveal reveal-delay-3">
+            <span class="audience-card__emoji" aria-hidden="true">🎨</span>
+            <h3 class="audience-card__title">设计爱好者</h3>
+            <p class="audience-card__desc">把手写风格直接嵌入设计作品，个人品牌、插画、手账——独一无二的字体才能撑起独特风格。</p>
+            <ul class="audience-card__list" aria-label="适合场景">
+              <li>个人品牌视觉设计</li>
+              <li>插画 / 手账创作</li>
+              <li>追求独特设计风格</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 9: 下载区（转化重点）
+    ============================================================ -->
+    <section class="download-section section--alt" id="download" aria-labelledby="download-title">
+      <div class="container">
+        <div class="download-section__inner">
+          <span class="section-label reveal">立即开始</span>
+          <h2 class="section-title reveal reveal-delay-1" id="download-title">
+            下载 fontkit，开始做你的字体
+          </h2>
+          <p class="section-desc reveal reveal-delay-2">
+            支持 Windows 与 macOS，基础功能永久免费。
+            下载后跟着<a href="https://qingsu.link" style="color:var(--accent-light)">教程主站</a>的完整指南，30 分钟上手。
+          </p>
+
+          <div class="download-btns reveal reveal-delay-3">
+            <!-- ===== Windows 下载链接：修改 href 即可更换网盘地址 ===== -->
+            <a href="https://pan.baidu.com/s/1D4ZX7ZAJheduW5YlYfUHow?pwd=5d45#list/path=%2F" class="download-btn download-btn--win"
+               target="_blank" rel="noopener" aria-label="下载 fontkit Windows 版">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.949"/></svg>
+              Windows 下载
+            </a>
+
+            <!-- ===== Mac 下载链接：修改 href 即可更换网盘地址 ===== -->
+            <a href="https://pan.baidu.com/s/1D4ZX7ZAJheduW5YlYfUHow?pwd=5d45#list/path=%2F" class="download-btn download-btn--mac"
+               target="_blank" rel="noopener" aria-label="下载 fontkit macOS 版">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+              macOS 下载
+            </a>
+          </div>
+
+          <p class="download-note reveal reveal-delay-4">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            基础功能永久免费 · 完整功能（批量处理、高级导出等）可解锁
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Step 10: FAQ 区
+    ============================================================ -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">常见问题</span>
+          <h2 class="section-title" id="faq-title">你可能想问的</h2>
+        </div>
+
+        <div class="faq-list" role="list">
+
+          <div class="faq-item reveal" role="listitem">
+            <button class="faq-question" aria-expanded="false">
+              <span>fontkit 是什么？</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" role="region">
+              <div class="faq-answer-inner">
+                fontkit 是一款专为<strong>手写字体制作</strong>设计的桌面工具箱，覆盖从字模表生成到最终字体文件输出的完整流程。
+                它把原本需要多个专业软件配合完成的工作集成到一个界面，降低了字体制作的门槛，让没有设计基础的人也能做出自己的字体。
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item reveal reveal-delay-1" role="listitem">
+            <button class="faq-question" aria-expanded="false">
+              <span>怎么做一套手写字体？</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" role="region">
+              <div class="faq-answer-inner">
+                基本流程分四步：① 用 fontkit 生成字模练习表并打印；② 在纸上填写文字后扫描或拍照；③ 用 fontkit 处理图片、批量切割单字；④ fontkit 生成 FontForge 脚本，导入 FontForge 执行即可得到字体文件。
+                完整图文教程可以在 <a href="https://qingsu.link" target="_blank" rel="noopener">qingsu.link 手写字体制作教程</a> 找到。
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item reveal reveal-delay-2" role="listitem">
+            <button class="faq-question" aria-expanded="false">
+              <span>我没有设计基础，能用吗？</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" role="region">
+              <div class="faq-answer-inner">
+                完全可以。fontkit 的设计目标就是「零基础可用」。你不需要了解 PostScript、Bezier 曲线或任何字体技术，只需要能写字、能拍照，剩下的交给软件处理。
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item reveal reveal-delay-3" role="listitem">
+            <button class="faq-question" aria-expanded="false">
+              <span>支持 Windows 和 Mac 吗？</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" role="region">
+              <div class="faq-answer-inner">
+                是的，fontkit 同时提供 Windows 和 macOS 版本，两个平台功能一致。建议使用 Windows 10 / macOS 11 Big Sur 及以上版本。
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item reveal reveal-delay-4" role="listitem">
+            <button class="faq-question" aria-expanded="false">
+              <span>更多字体制作教程去哪里找？</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer" role="region">
+              <div class="faq-answer-inner">
+                可以访问 fontkit 的教程主站 <a href="https://qingsu.link" target="_blank" rel="noopener">qingsu.link</a>，
+                那里有从入门到进阶的完整<strong>手写字体制作教程</strong>，包括字模设计技巧、扫描参数推荐、字体授权说明等内容。
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       Step 11: Footer
+  ============================================================ -->
+  <footer class="footer" aria-label="页脚">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__col footer__col--brand">
+          <div class="footer__brand-name">fontkit</div>
+          <p class="footer__brand-desc">手写字体制作工具箱，让每个人都能拥有属于自己的专属字体。</p>
+          <a href="https://qingsu.link" class="footer__parent" target="_blank" rel="noopener" aria-label="访问教程主站 qingsu.link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            qingsu.link · 手写字体制作教程
+          </a>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">产品</div>
+          <nav class="footer__links" aria-label="产品导航">
+            <a href="#features">功能介绍</a>
+            <a href="#how-it-works">使用流程</a>
+            <a href="#audience">适用人群</a>
+            <a href="#download">下载</a>
+          </nav>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">资源</div>
+          <nav class="footer__links" aria-label="资源导航">
+            <a href="https://qingsu.link" target="_blank" rel="noopener">字体制作教程</a>
+            <a href="#faq">常见问题</a>
+            <a href="#demo">视频演示</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2024 fontkit · by <a href="https://qingsu.link" style="color:inherit">qingsu.link</a></p>
+        <p class="footer__icp">
+          <!-- ===== 如有 ICP 备案号，在此填写 ===== -->
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       Step 12: JavaScript
+  ============================================================ -->
+  <script>
+    // === Navbar 毛玻璃效果 ===
+    const navbar = document.getElementById('navbar');
+    function updateNavbar() {
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+    updateNavbar();
+
+    // === 移动端菜单 ===
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    let menuOpen = false;
+
+    hamburger.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('open', menuOpen);
+      hamburger.setAttribute('aria-expanded', menuOpen);
+    });
+
+    function closeMenu() {
+      menuOpen = false;
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', false);
+    }
+
+    // 点击外部关闭菜单
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !navbar.contains(e.target)) closeMenu();
+    });
+
+    // === IntersectionObserver 滚动动画 ===
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // === B站视频懒加载 ===
+    const videoWrapper = document.getElementById('videoWrapper');
+    const videoCover = document.getElementById('videoCover');
+    const videoIframe = document.getElementById('videoIframe');
+    const videoOpenBilibili = document.getElementById('videoOpenBilibili');
+
+    function loadVideo() {
+      const bvid = videoWrapper.dataset.bvid;
+      if (!bvid || bvid === 'BV_PLACEHOLDER') {
+        // BV 号未设置时的提示
+        videoCover.querySelector('.video-cover__text').textContent = '视频即将上线，敬请期待';
+        return;
+      }
+
+      if (videoIframe.querySelector('iframe')) return;
+
+      videoOpenBilibili.href = `https://www.bilibili.com/video/${bvid}/`;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = `//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0&autoplay=1`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.scrolling = 'no';
+      iframe.frameBorder = 0;
+      videoIframe.appendChild(iframe);
+      videoIframe.style.display = 'block';
+      videoWrapper.classList.add('video-loaded');
+      videoCover.style.opacity = '0';
+      setTimeout(() => { videoCover.style.display = 'none'; }, 300);
+    }
+
+    videoWrapper.addEventListener('click', loadVideo);
+    videoWrapper.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadVideo(); }
+    });
+
+    // === FAQ Accordion ===
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const btn = item.querySelector('.faq-question');
+      const answer = item.querySelector('.faq-answer');
+
+      btn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        // 关闭所有
+        faqItems.forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          i.querySelector('.faq-answer').style.maxHeight = '0';
+        });
+
+        // 如果当前未打开，则打开
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
