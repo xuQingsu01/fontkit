@@ -12,7 +12,7 @@ import https from "https";
 import { URL } from "url";
 
 // ── 配置 ──────────────────────────────────────────────────────────────────────
-const KEY = "f31147e5e2744f24a1328cff07bc9a1d";
+const KEY = "5c9d8fb70877467abe3dfe3926e5c9e1";
 
 /**
  * 从 sitemap.xml 读取 URL 或在此处维护页面列表。
