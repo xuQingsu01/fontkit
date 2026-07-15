@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fontkit.qingsu.link/sitemap.xml

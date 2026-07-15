@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fontkit · 转化统计</title>
+  <style>
+    :root {
+      --bg:           #09090b;
+      --bg-section:   #0d0d10;
+      --bg-card:      rgba(255,255,255,0.04);
+      --border:       rgba(255,255,255,0.08);
+      --text-primary: #f4f4f5;
+      --text-secondary:#a1a1aa;
+      --text-muted:   #71717a;
+      --accent:       #4f6ef7;
+      --accent-light: #6b84ff;
+      --accent-glow:  rgba(79,110,247,0.25);
+      --accent-subtle:rgba(79,110,247,0.08);
+      --radius:       12px;
+      --radius-lg:    20px;
+      --sp:           8px;
+      --green:        #4ade80;
+      --red:          #f87171;
+      --yellow:       #fbbf24;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── 顶部导航 ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 calc(var(--sp) * 3);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav__brand {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .nav__logo {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav__sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .nav__right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav__status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .nav__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(0.8); }
+    }
+
+    /* 筛选器 */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--accent-subtle);
+      border-color: rgba(79,110,247,0.25);
+      color: var(--accent-light);
+    }
+    .refresh-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .refresh-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text-primary); }
+
+    /* ── 主内容 ── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: calc(var(--sp) * 4) calc(var(--sp) * 3) calc(var(--sp) * 10);
+    }
+
+    /* ── 顶部标题 ── */
+    .page-header {
+      margin-bottom: calc(var(--sp) * 5);
+    }
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+    }
+    .page-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── 卡片基础 ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: calc(var(--sp) * 3);
+    }
+    .card-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: calc(var(--sp) * 1.5);
+    }
+    .card-value {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .card-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .card-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-top: 8px;
+    }
+    .card-badge--green { background: rgba(74,222,128,0.12); color: var(--green); }
+    .card-badge--red   { background: rgba(248,113,113,0.12); color: var(--red); }
+    .card-badge--blue  { background: var(--accent-subtle); color: var(--accent-light); }
+
+    /* ── 统计卡片网格 ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: calc(var(--sp) * 2);
+      margin-bottom: calc(var(--sp) * 3);
+    }
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── 分布图 ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: calc(var(--sp) * 2);
+      margin-bottom: calc(var(--sp) * 3);
+    }
+    @media (max-width: 768px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .bar-item { display: flex; flex-direction: column; gap: 4px; }
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .bar-name { color: var(--text-secondary); }
+    .bar-count { color: var(--text-primary); font-weight: 600; }
+    .bar-track {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+    .bar-fill--green  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .bar-fill--yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    /* 漏斗 */
+    .funnel {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .funnel-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .funnel-step__label {
+      width: 80px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .funnel-step__bar-wrap {
+      flex: 1;
+      height: 32px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .funnel-step__bar {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+    .funnel-step:nth-child(1) .funnel-step__bar { background: var(--accent); }
+    .funnel-step:nth-child(2) .funnel-step__bar { background: #22c55e; }
+    .funnel-step:nth-child(3) .funnel-step__bar { background: #f87171; }
+    .funnel-step__pct {
+      width: 44px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* ── 最近事件表格 ── */
+    .events-card {
+      margin-bottom: calc(var(--sp) * 2);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s;
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td {
+      padding: 10px 12px;
+      color: var(--text-secondary);
+    }
+    tbody td:first-child { color: var(--text-muted); font-size: 12px; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag--open    { background: var(--accent-subtle); color: var(--accent-light); }
+    .tag--click   { background: rgba(74,222,128,0.1); color: var(--green); }
+    .tag--close   { background: rgba(248,113,113,0.1); color: var(--red); }
+    .tag--mobile  { background: rgba(251,191,36,0.1);  color: var(--yellow); }
+    .tag--desktop { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+    /* 加载状态 */
+    .loading {
+      text-align: center;
+      padding: calc(var(--sp) * 8);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .skeleton {
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.04) 25%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      height: 42px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* 空状态 */
+    .empty { text-align: center; padding: calc(var(--sp)*4); color: var(--text-muted); font-size:13px; }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <nav class="nav">
+    <div class="nav__brand">
+      <span class="nav__logo">fontkit</span>
+      <span class="nav__sub">转化统计</span>
+    </div>
+    <div class="nav__right">
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-days="0">全部</button>
+        <button class="filter-btn" data-days="1">今天</button>
+        <button class="filter-btn" data-days="7">7天</button>
+        <button class="filter-btn" data-days="30">30天</button>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">刷新</button>
+      <div class="nav__status">
+        <div class="nav__dot"></div>
+        <span id="lastUpdate">加载中…</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容 -->
+  <main class="main">
+    <div class="page-header">
+      <h1 class="page-title">下载转化统计</h1>
+      <p class="page-desc">追踪用户从访问到下载的完整漏斗数据</p>
+    </div>
+
+    <!-- 核心数字 -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="card skeleton"></div>
+      <div class="card skeleton"></div>
+      <div class="card skeleton"></div>
+    </div>
+
+    <!-- 漏斗 + 渠道 + 来源 + 设备 -->
+    <div class="charts-grid" id="chartsGrid">
+      <div class="card skeleton"></div>
+      <div class="card skeleton"></div>
+      <div class="card skeleton"></div>
+    </div>
+
+    <!-- 最近事件 -->
+    <div class="card events-card" id="eventsCard">
+      <div class="card-label">最近事件</div>
+      <div class="loading">加载中…</div>
+    </div>
+  </main>
+
+  <script>
+    const token = new URLSearchParams(location.search).get('token') || '';
+    let currentDays = 0;
+
+    // ── 获取统计数据 ──────────────────────────────────────────────────────────
+    async function fetchStats(days = 0) {
+      const url = `/api/stats?token=${encodeURIComponent(token)}&days=${days}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        if (res.status === 401) {
+          document.body.innerHTML = '<div style="text-align:center;padding:80px;color:#71717a;font-size:16px;">401 · 无效的访问 Token</div>';
+          return null;
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    // ── 格式化时间 ────────────────────────────────────────────────────────────
+    function formatTime(iso) {
+      const d = new Date(iso);
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    // ── 事件名中文映射 ────────────────────────────────────────────────────────
+    const EVENT_LABELS = {
+      modal_open:    { label: '打开弹窗', cls: 'tag--open' },
+      channel_click: { label: '选择渠道', cls: 'tag--click' },
+      modal_close:   { label: '关闭未选', cls: 'tag--close' },
+    };
+    const CHANNEL_LABELS = { baidu: '百度网盘', quark: '夸克网盘' };
+    const SOURCE_LABELS  = { hero: 'Hero', win: 'Windows', mac: 'macOS' };
+
+    // ── 渲染进度条列表 ────────────────────────────────────────────────────────
+    function renderBars(map, labelMap, fillClass = '') {
+      const total = Object.values(map).reduce((a, b) => a + b, 0);
+      if (total === 0) return '<div class="empty">暂无数据</div>';
+      return Object.entries(map)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key, count]) => {
+          const pct   = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+          const label = labelMap[key] || key;
+          return `
+            <div class="bar-item">
+              <div class="bar-meta">
+                <span class="bar-name">${label}</span>
+                <span class="bar-count">${count} <span style="color:var(--text-muted);font-weight:400">(${pct}%)</span></span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill ${fillClass}" style="width:${pct}%"></div>
+              </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ── 渲染漏斗 ──────────────────────────────────────────────────────────────
+    function renderFunnel(total) {
+      const open  = total.modal_open    || 0;
+      const click = total.channel_click || 0;
+      const close = total.modal_close   || 0;
+      const steps = [
+        { label: '弹窗打开', value: open,  pct: 100 },
+        { label: '渠道点击', value: click, pct: open > 0 ? ((click/open)*100).toFixed(1) : 0 },
+        { label: '关闭流失', value: close, pct: open > 0 ? ((close/open)*100).toFixed(1) : 0 },
+      ];
+      return steps.map(s => `
+        <div class="funnel-step">
+          <div class="funnel-step__label">${s.label}</div>
+          <div class="funnel-step__bar-wrap">
+            <div class="funnel-step__bar" style="width:${s.pct}%">${s.value}</div>
+          </div>
+          <div class="funnel-step__pct">${s.pct}%</div>
+        </div>`).join('');
+    }
+
+    // ── 渲染最近事件表格 ──────────────────────────────────────────────────────
+    function renderTable(recent) {
+      if (!recent || recent.length === 0) return '<div class="empty">暂无事件记录</div>';
+      const rows = recent.map(e => {
+        const ev     = EVENT_LABELS[e.event] || { label: e.event, cls: '' };
+        const devCls = e.device === 'mobile' ? 'tag--mobile' : 'tag--desktop';
+        const devLbl = e.device === 'mobile' ? '手机' : '桌面';
+        const ch  = e.channel ? (CHANNEL_LABELS[e.channel] || e.channel) : '—';
+        const src = e.source  ? (SOURCE_LABELS[e.source]   || e.source)  : '—';
+        return `<tr>
+          <td>${formatTime(e.createdAt)}</td>
+          <td><span class="tag ${ev.cls}">${ev.label}</span></td>
+          <td>${src}</td>
+          <td>${ch}</td>
+          <td><span class="tag ${devCls}">${devLbl}</span></td>
+        </tr>`;
+      }).join('');
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>时间</th><th>事件</th><th>来源</th><th>渠道</th><th>设备</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    // ── 主渲染函数 ────────────────────────────────────────────────────────────
+    async function render(days) {
+      const data = await fetchStats(days).catch(() => null);
+      if (!data) return;
+
+      const { total, channels, sources, devices, recent } = data;
+      const open  = total.modal_open    || 0;
+      const click = total.channel_click || 0;
+      const close = total.modal_close   || 0;
+      const cvr   = open > 0 ? ((click / open) * 100).toFixed(1) : 0;
+
+      // 核心数字卡片
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="card">
+          <div class="card-label">弹窗打开</div>
+          <div class="card-value">${open.toLocaleString()}</div>
+          <div class="card-sub">用户点击了下载按钮</div>
+          <span class="card-badge card-badge--blue">入口触达</span>
+        </div>
+        <div class="card">
+          <div class="card-label">渠道点击（转化）</div>
+          <div class="card-value">${click.toLocaleString()}</div>
+          <div class="card-sub">选择了下载渠道并跳出</div>
+          <span class="card-badge card-badge--green">转化率 ${cvr}%</span>
+        </div>
+        <div class="card">
+          <div class="card-label">关闭未选择（流失）</div>
+          <div class="card-value">${close.toLocaleString()}</div>
+          <div class="card-sub">打开弹窗后直接关闭</div>
+          <span class="card-badge card-badge--red">流失率 ${open > 0 ? ((close/open)*100).toFixed(1) : 0}%</span>
+        </div>`;
+
+      // 图表区
+      document.getElementById('chartsGrid').innerHTML = `
+        <div class="card">
+          <div class="card-label">转化漏斗</div>
+          <div class="funnel">${renderFunnel(total)}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">渠道分布</div>
+          <div class="bar-row">${renderBars(channels, CHANNEL_LABELS, 'bar-fill--green')}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">入口来源</div>
+          <div class="bar-row">${renderBars(sources, SOURCE_LABELS)}</div>
+        </div>`;
+
+      // 最近事件
+      document.getElementById('eventsCard').innerHTML = `
+        <div class="card-label">最近事件（最多30条）</div>
+        ${renderTable(recent)}`;
+
+      document.getElementById('lastUpdate').textContent =
+        '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+    }
+
+    // ── 筛选器 ────────────────────────────────────────────────────────────────
+    document.getElementById('filterBar').addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDays = parseInt(btn.dataset.days);
+      render(currentDays);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => render(currentDays));
+
+    // ── 初始加载 + 自动刷新（60秒）────────────────────────────────────────────
+    render(0);
+    setInterval(() => render(currentDays), 60000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "fontkit-site",
+  "version": "1.0.0",
+  "description": "FontKit 官网静态站",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/generate-sitemap.js",
+    "indexnow": "node indexnow.js",
+    "indexnow:page": "node indexnow.js"
+  }
+}
