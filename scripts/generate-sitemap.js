@@ -35,9 +35,15 @@ const BASE_URL = "https://fontkit.qingsu.link";
 const PAGES = [
   {
     loc: "/",
-    lastmod: "",           // 留空 = 自动使用今天日期
+    lastmod: "",
     changefreq: "monthly",
     priority: "1.0",
+  },
+  {
+    loc: "/changelog",
+    lastmod: "",
+    changefreq: "monthly",
+    priority: "0.8",
   },
   // ── 新增页面示例 ───────────────────────────────────────────────────────────
   // {

@@ -20,6 +20,7 @@ const KEY = "5c9d8fb70877467abe3dfe3926e5c9e1";
  */
 const SITE_URLS = [
   "https://fontkit.qingsu.link/",
+  "https://fontkit.qingsu.link/changelog",
 ];
 
 // IndexNow 支持的搜索引擎端点（任意提交一次，其余引擎自动同步）
